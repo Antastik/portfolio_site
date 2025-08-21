@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Portfolio</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script defer src="{% static 'js/main.js' %}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="font-sans bg-animated" style="--accent: {{ profile.accent_color|default:'#3fe3ff' }}; --neon: {{ profile.neon_color|default:'#7aa2ff' }};">
+    <header class="site-header hero">
+        {% if profile and profile.avatar %}
+        <div class="avatar-wrap">
+            <img class="avatar" src="{{ profile.avatar.url }}" alt="{{ profile.full_name }}">
+        </div>
+        {% endif %}
+        <div class="brand">
+            <div class="hero-slideshow">
+                {% for hi in hero_images %}
+                <img src="{{ hi.image.url }}" style="opacity: {{ hi.opacity }}" alt="hero {{ forloop.counter }}"> {% endfor %}
+            </div>
+            <h1 class="heading-serif animated-glow">{{ profile.full_name|default:"Hi, I am Animesh" }}</h1>
+            <p class="tagline font-mono typewriter end-center">{{ profile.tagline|default:"Software and AI Engineer" }}</p>
+            <nav class="social">
+                {% if profile and profile.email %}
+                <a class="icon" href="mailto:{{ profile.email }}" aria-label="Email">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h15A2.5 2.5 0 0 1 22 6.5v11A2.5 2.5 0 0 1 19.5 20h-15A2.5 2.5 0 0 1 2 17.5v-11Zm2.2-.5 7.3 5.1c.3.2.7.2 1 0L19.8 6H4.2Zm15.3 2.1-6.4 4.5a3 3 0 0 1-3.4 0L3.3 8.1V17.5c0 .55.45 1 1 1h15.4c.55 0 1-.45 1-1V8.1Z"/></svg>
+                </a>
+                {% endif %} {% if profile and profile.github_url %}
+                <a class="icon" href="{{ profile.github_url }}" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.5 1.1 3.1.8.1-.7.4-1.1.7-1.4-2.6-.3-5.3-1.3-5.3-5.9 0-1.3.5-2.4 1.2-3.3-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.4 1.2a11.8 11.8 0 0 1 6.2 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.9 1.2 2 1.2 3.3 0 4.6-2.7 5.6-5.3 5.9.4.3.7.9.7 1.9v2.8c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>
+                </a>
+                {% endif %} {% if profile and profile.linkedin_url %}
+                <a class="icon" href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 5 2.12 5 3.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.1c.5-1 1.8-2.2 3.7-2.2 4 0 4.8 2.6 4.8 6V24h-4v-6.9c0-1.6 0-3.7-2.2-3.7s-2.6 1.7-2.6 3.5V24h-4V8z"/></svg>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <section class="about center">
+        <div class="container">
+            <h2 class="heading-serif">About Me</h2>
+            {% if profile and profile.bio %}
+            <p class="bio fade-in heading-serif">{{ profile.bio }}</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="actions">
+        <div class="container">
+            {% if resume %}
+            <a class="btn neon" href="{{ resume.file.url }}" download>Download Resume</a> {% endif %} {% if cover %}
+            <a class="btn neon" href="{{ cover.file.url }}" download>Download Cover Letter</a> {% endif %}
+        </div>
+    </section>
+
+    {% if resume %}
+    <section class="resume center">
+        <div class="container">
+            <h2 class="heading-serif">Resume</h2>
+            <div class="resume-embed">
+                <canvas id="resume-canvas" data-url="{{ resume.file.url }}"></canvas>
+            </div>
+            <div class="resume-actions">
+                <a class="btn link" href="{{ resume.file.url }}" target="_blank">Open Full PDF</a>
+            </div>
+        </div>
+    </section>
+    {% endif %} {% if skills %}
+    <section class="skills">
+        <div class="container">
+            <h2 class="heading-serif">Skills</h2>
+            {% regroup skills by category as categories %}
+            <div class="skills-grid">
+                {% for cat in categories %}
+                <div class="skill-column">
+                    {% if cat.grouper %}
+                    <h3 class="heading-serif small">{{ cat.grouper }}</h3>{% endif %}
+                    <ul class="skill-list">
+                        {% for s in cat.list %}
+                        <li class="skill-item">
+                            <span class="skill-name">{{ s.name }}</span>
+                            <div class="bar">
+                                <div class="fill" style="width: {{ s.proficiency }}%"></div>
+                            </div>
+                            <span class="pct">{{ s.proficiency }}%</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="projects center">
+        <h2 class="heading-serif">Projects</h2>
+        <div class="grid">
+            {% for project in projects %}
+            <div class="project-card">
+                <img class="zoomable" src="{{ project.image.url }}" alt="{{ project.title }}" data-large="{{ project.image.url }}">
+                <h3>{{ project.title }}</h3>
+                <p>{{ project.description }}</p>
+                {% if project.url %}
+                <a class="btn link" href="{{ project.url }}" target="_blank">View Project</a> {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div id="zoom-modal" class="zoom-modal" aria-hidden="true">
+        <button class="zoom-close" aria-label="Close">×</button>
+        <img id="zoom-image" alt="Zoomed image">
+    </div>
+
+    <section class="contact">
+        <div class="container">
+            <h2 class="heading-serif">Contact</h2>
+            <div class="contact-grid">
+                {% if profile and profile.email %}
+                <div><strong>Email:</strong> <a href="mailto:{{ profile.email }}">{{ profile.email }}</a></div>{% endif %} {% if profile and profile.phone %}
+                <div><strong>Phone:</strong> {{ profile.phone }}</div>{% endif %} {% if profile and profile.location %}
+                <div><strong>Location:</strong> {{ profile.location }}</div>{% endif %} {% if profile and profile.github_url %}
+                <div><strong>GitHub:</strong> <a href="{{ profile.github_url }}" target="_blank" rel="noopener">{{ profile.github_url }}</a></div>{% endif %} {% if profile and profile.linkedin_url %}
+                <div><strong>LinkedIn:</strong> <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener">{{ profile.linkedin_url }}</a></div>{% endif %}
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; {{ profile.full_name|default:"Your Name" }}</p>
+    </footer>
+</body>
+
+</html>
